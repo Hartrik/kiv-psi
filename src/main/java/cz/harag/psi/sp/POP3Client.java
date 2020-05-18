@@ -19,17 +19,32 @@ public class POP3Client implements AutoCloseable {
         this.state = State.CONNECTED;
     }
 
-    public String send(String command, String arg) throws IOException {
-        String data = command + " " + arg;
-        LoggingProvider.logRequest(data);
-        connection.getWriter().write(data);
-        connection.getWriter().write("\r\n");
-        connection.getWriter().flush();
+    public String sendAndExpectSingleLine(String command, String arg) throws IOException {
+        send(command, arg);
 
         return readResponse();
     }
 
-    public String readResponse() throws IOException, POP3Exception {
+    public String sendAndExpectMultiLine(String command, String arg) throws IOException {
+        send(command, arg);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        while (!(line = readResponse()).equals(".")) {
+            stringBuilder.append(line).append('\n');
+        }
+        return stringBuilder.toString();
+    }
+
+    private void send(String command, String arg) throws IOException {
+        String data = (arg != null) ? command + " " + arg : command;
+        LoggingProvider.logRequest(data);
+        connection.getWriter().write(data);
+        connection.getWriter().write("\r\n");
+        connection.getWriter().flush();
+    }
+
+    private String readResponse() throws IOException, POP3Exception {
         String response = connection.getReader().readLine();
         if (response.startsWith("-ERR")) {
             throw new POP3Exception(response);
