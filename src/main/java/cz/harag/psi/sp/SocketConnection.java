@@ -16,7 +16,7 @@ import javax.net.ssl.SSLSocketFactory;
  */
 public class SocketConnection implements Connection {
 
-    public static final int TIMEOUT_MS = 1_000;
+    public static final int TIMEOUT_MS = 3_000;
 
     private final Socket socket;
     private final BufferedReader reader;

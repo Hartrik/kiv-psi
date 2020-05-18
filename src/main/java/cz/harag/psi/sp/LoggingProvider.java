@@ -16,4 +16,8 @@ public class LoggingProvider {
         System.out.println(LocalTime.now() + " | << " + response);
     }
 
+    public static void logRequest(String request) {
+        System.out.println(LocalTime.now() + " | >> " + request);
+    }
+
 }
