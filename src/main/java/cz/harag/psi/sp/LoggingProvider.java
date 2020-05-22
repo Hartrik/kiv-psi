@@ -17,6 +17,7 @@ public class LoggingProvider {
     }
 
     public static void logRequest(String request) {
+        request = request.replaceAll("PASS .+", "PASS ***");
         System.out.println(LocalTime.now() + " | >> " + request);
     }
 
