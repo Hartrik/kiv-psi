@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
  */
 public class POP3ClientHelper {
 
+    public static void authorize(POP3Client client, String user, String pass) throws IOException {
+        client.sendAndExpectSingleLine("USER", user);
+        client.sendAndExpectSingleLine("PASS", pass);
+    }
+
     public static List<String> list(POP3Client client) throws IOException {
         String list = client.sendAndExpectMultiLine("LIST", null);
 

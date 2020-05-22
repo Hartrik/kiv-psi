@@ -102,8 +102,7 @@ public class Main extends Application {
                 if (userParameters.getUser().isEmpty() || userParameters.getPass().isEmpty()) {
                     throw new IllegalArgumentException("Missing parameter");
                 }
-                client.sendAndExpectSingleLine("USER", userParameters.getUser());
-                client.sendAndExpectSingleLine("PASS", userParameters.getPass());
+                POP3ClientHelper.authorize(client, userParameters.getUser(), userParameters.getPass());
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
