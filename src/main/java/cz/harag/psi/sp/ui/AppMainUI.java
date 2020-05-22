@@ -41,7 +41,7 @@ public class AppMainUI {
                 createLabel("Mails"),
                 new HBox(
                         10,
-                        refresh("Refresh")
+                        reset("Revert modifications")
                 ),
                 listView
         );
@@ -61,6 +61,7 @@ public class AppMainUI {
     }
 
     private void refreshListView() {
+        listView.getItems().clear();
         Thread thread = new Thread(() -> {
             try {
                 List<String> list = POP3ClientHelper.list(client);
@@ -99,10 +100,19 @@ public class AppMainUI {
         return label;
     }
 
-    private Button refresh(String label) {
+    private Button reset(String label) {
         Button button = new Button(label);
         button.setOnAction(e -> {
-            refreshListView();
+            Thread thread = new Thread(() -> {
+                try {
+                    POP3ClientHelper.reset(client);
+                    Platform.runLater(this::refreshListView);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+            thread.setDaemon(true);
+            thread.start();
         });
         return button;
     }

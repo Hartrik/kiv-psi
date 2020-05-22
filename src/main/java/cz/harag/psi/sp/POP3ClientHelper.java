@@ -31,4 +31,8 @@ public class POP3ClientHelper {
         return mail.substring(index + 1);
     }
 
+    public static void reset(POP3Client client) throws IOException {
+        client.sendAndExpectSingleLine("RSET", null);
+    }
+
 }
