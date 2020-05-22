@@ -19,13 +19,13 @@ public class POP3Client implements AutoCloseable {
         this.state = State.CONNECTED;
     }
 
-    public String sendAndExpectSingleLine(String command, String arg) throws IOException {
+    public synchronized String sendAndExpectSingleLine(String command, String arg) throws IOException {
         send(command, arg);
 
         return readResponse();
     }
 
-    public String sendAndExpectMultiLine(String command, String arg) throws IOException {
+    public synchronized String sendAndExpectMultiLine(String command, String arg) throws IOException {
         send(command, arg);
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -55,7 +55,7 @@ public class POP3Client implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public synchronized void close() throws Exception {
         try {
             connection.close();
         } finally {
