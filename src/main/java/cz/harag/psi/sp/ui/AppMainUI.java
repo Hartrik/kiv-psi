@@ -9,8 +9,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
@@ -35,6 +37,26 @@ public class AppMainUI {
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             show(newValue);
         });
+
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem remove = new MenuItem("Remove");
+        remove.setOnAction(event -> {
+            String id = listView.getSelectionModel().getSelectedItem();
+            if (id != null) {
+                Thread thread = new Thread(() -> {
+                    try {
+                        POP3ClientHelper.delete(client, id);
+                        Platform.runLater(this::refreshListView);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                thread.setDaemon(true);
+                thread.start();
+            }
+        });
+        contextMenu.getItems().add(remove);
+        listView.setContextMenu(contextMenu);
 
         VBox box = new VBox(
                 10,
