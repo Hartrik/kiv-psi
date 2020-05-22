@@ -35,4 +35,8 @@ public class POP3ClientHelper {
         client.sendAndExpectSingleLine("RSET", null);
     }
 
+    public static void quit(POP3Client client) throws IOException {
+        client.sendAndExpectSingleLine("QUIT", null);
+    }
+
 }

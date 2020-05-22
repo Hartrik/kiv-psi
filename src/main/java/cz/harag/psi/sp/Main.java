@@ -36,6 +36,7 @@ public class Main extends Application {
         stage.show();
         stage.setOnCloseRequest(e -> {
             try {
+                POP3ClientHelper.quit(client);
                 client.close();
             } catch (Exception ex) {
                 // nothing
