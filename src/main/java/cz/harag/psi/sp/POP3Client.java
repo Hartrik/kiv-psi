@@ -31,6 +31,7 @@ public class POP3Client implements AutoCloseable {
         StringBuilder stringBuilder = new StringBuilder();
         String line;
         while (!(line = readResponse()).equals(".")) {
+            line = line.replaceFirst("^\\.\\.", ".");
             stringBuilder.append(line).append('\n');
         }
         return stringBuilder.toString();
