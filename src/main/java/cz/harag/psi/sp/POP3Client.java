@@ -4,19 +4,15 @@ import java.io.IOException;
 
 /**
  * @author Patrik Harag
- * @version 2020-05-16
+ * @version 2020-05-22
  */
 public class POP3Client implements AutoCloseable {
 
-    private enum State { NOT_CONNECTED, CONNECTED }
-
     private final Connection connection;
-    private State state = State.NOT_CONNECTED;
 
     public POP3Client(Connection connection) throws IOException {
         this.connection = connection;
         readResponse();  // should just pass
-        this.state = State.CONNECTED;
     }
 
     public synchronized String sendAndExpectSingleLine(String command, String arg) throws IOException {
