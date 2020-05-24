@@ -1,6 +1,8 @@
 package cz.harag.psi.sp.ui;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Properties;
 
 import cz.harag.psi.sp.POP3Client;
 import cz.harag.psi.sp.POP3ClientHelper;
@@ -8,16 +10,14 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+import org.apache.commons.mail.util.MimeMessageParser;
 
 /**
  *
@@ -27,13 +27,14 @@ import javafx.stage.Stage;
 public class AppMainUI {
 
     private final POP3Client client;
-    private final TextArea area;
+    private final TextArea rawText;
+    private final WebView contentView;
     private final ListView<String> listView;
 
     public AppMainUI(Stage stage, POP3Client client) {
         this.client = client;
 
-        listView = new ListView<>();
+        this.listView = new ListView<>();
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             show(newValue);
         });
@@ -69,10 +70,18 @@ public class AppMainUI {
         );
         box.setPadding(new Insets(10));
 
-        this.area = new TextArea();
-        area.setStyle("-fx-font-family: 'monospaced';");
+        this.contentView = new WebView();
+        Tab contentTab = new Tab("Content", contentView);
+        contentTab.setClosable(false);
 
-        SplitPane splitPane = new SplitPane(box, area);
+        this.rawText = new TextArea();
+        rawText.setStyle("-fx-font-family: 'monospaced';");
+        Tab rawTab = new Tab("Raw", rawText);
+        rawTab.setClosable(false);
+
+        TabPane tabPane = new TabPane(contentTab, rawTab);
+
+        SplitPane splitPane = new SplitPane(box, tabPane);
         splitPane.setDividerPositions(0.35);
 
         stage.setTitle("POP3 client");
@@ -99,13 +108,18 @@ public class AppMainUI {
     }
 
     private void show(String id) {
-        area.setText("");
+        rawText.setText("");
+        contentView.getEngine().loadContent("");
+
         if (id != null) {
             Thread thread = new Thread(() -> {
                 try {
-                    String mail = POP3ClientHelper.rawMail(client, id);
+                    String rawMail = POP3ClientHelper.rawMail(client, id);
+                    String content = retrieveHtmlContent(rawMail);
+
                     Platform.runLater(() -> {
-                        area.setText(mail);
+                        rawText.setText(rawMail);
+                        contentView.getEngine().loadContent(content);
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -113,6 +127,19 @@ public class AppMainUI {
             });
             thread.setDaemon(true);
             thread.start();
+        }
+    }
+
+    private String retrieveHtmlContent(String message) throws Exception {
+        Session session = Session.getDefaultInstance(new Properties());
+        MimeMessage msg = new MimeMessage(session, new ByteArrayInputStream(message.getBytes()));
+
+        MimeMessageParser parser = new MimeMessageParser(msg);
+        parser.parse();
+        if (parser.hasHtmlContent()) {
+            return parser.getHtmlContent();
+        } else {
+            return "<pre>" + parser.getPlainContent() + "</pre>";
         }
     }
 
