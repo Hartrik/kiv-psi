@@ -124,7 +124,11 @@ public class AppMainUI {
                     MimeMessageParser parser = new MimeMessageParser(msg);
                     parser.parse();
                     Platform.runLater(() -> {
-                        mailView.show(parser);
+                        try {
+                            mailView.show(parser);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
