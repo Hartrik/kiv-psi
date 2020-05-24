@@ -13,7 +13,6 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -21,15 +20,16 @@ import org.apache.commons.mail.util.MimeMessageParser;
 
 /**
  *
- * @version 2020-05-22
+ * @version 2020-05-24
  * @author Patrik Harag
  */
 public class AppMainUI {
 
     private final POP3Client client;
-    private final TextArea rawText;
-    private final WebView contentView;
+
     private final ListView<String> listView;
+    private final MailView mailView;
+    private final TextArea rawText;
 
     public AppMainUI(Stage stage, POP3Client client) {
         this.client = client;
@@ -70,8 +70,8 @@ public class AppMainUI {
         );
         box.setPadding(new Insets(10));
 
-        this.contentView = new WebView();
-        Tab contentTab = new Tab("Content", contentView);
+        this.mailView = new MailView();
+        Tab contentTab = new Tab("Content", mailView.getNode());
         contentTab.setClosable(false);
 
         this.rawText = new TextArea();
@@ -109,17 +109,22 @@ public class AppMainUI {
 
     private void show(String id) {
         rawText.setText("");
-        contentView.getEngine().loadContent("");
+        mailView.clean();
 
         if (id != null) {
             Thread thread = new Thread(() -> {
                 try {
                     String rawMail = POP3ClientHelper.rawMail(client, id);
-                    String content = retrieveHtmlContent(rawMail);
-
                     Platform.runLater(() -> {
                         rawText.setText(rawMail);
-                        contentView.getEngine().loadContent(content);
+                    });
+
+                    Session session = Session.getDefaultInstance(new Properties());
+                    MimeMessage msg = new MimeMessage(session, new ByteArrayInputStream(rawMail.getBytes()));
+                    MimeMessageParser parser = new MimeMessageParser(msg);
+                    parser.parse();
+                    Platform.runLater(() -> {
+                        mailView.show(parser);
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -127,19 +132,6 @@ public class AppMainUI {
             });
             thread.setDaemon(true);
             thread.start();
-        }
-    }
-
-    private String retrieveHtmlContent(String message) throws Exception {
-        Session session = Session.getDefaultInstance(new Properties());
-        MimeMessage msg = new MimeMessage(session, new ByteArrayInputStream(message.getBytes()));
-
-        MimeMessageParser parser = new MimeMessageParser(msg);
-        parser.parse();
-        if (parser.hasHtmlContent()) {
-            return parser.getHtmlContent();
-        } else {
-            return "<pre>" + parser.getPlainContent() + "</pre>";
         }
     }
 
