@@ -3,6 +3,8 @@ package cz.harag.psi.sp;
 import java.io.IOException;
 
 /**
+ * Low level API for working with POP3 protocol.
+ *
  * @author Patrik Harag
  * @version 2020-05-22
  */

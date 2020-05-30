@@ -11,6 +11,8 @@ import java.net.Socket;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
+ * Standard Java net sockets implementation of {@link Connection}.
+ *
  * @author Patrik Harag
  * @version 2020-05-16
  */
@@ -30,10 +32,23 @@ public class SocketConnection implements Connection {
         this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
+    /**
+     * Plain connection.
+     *
+     * @param host server host
+     * @param port server port
+     */
     public SocketConnection(String host, Integer port) throws IOException {
         this(new Socket(), host, port);
     }
 
+    /**
+     * SSL connection.
+     *
+     * @param host server host
+     * @param port server port
+     * @param sslSocketFactory socket factory
+     */
     public SocketConnection(String host, Integer port, SSLSocketFactory sslSocketFactory) throws IOException {
         this(sslSocketFactory.createSocket(), host, port);
     }

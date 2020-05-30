@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * Provides more high level methods for working with POP3 protocol.
+ *
  * @author Patrik Harag
  * @version 2020-05-22
  */

@@ -3,6 +3,8 @@ package cz.harag.psi.sp;
 import java.time.LocalTime;
 
 /**
+ * Handles logging.
+ *
  * @author Patrik Harag
  * @version 2020-05-16
  */

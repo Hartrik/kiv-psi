@@ -1,6 +1,8 @@
 package cz.harag.psi.sp;
 
 /**
+ * POP3 exception.
+ *
  * @author Patrik Harag
  * @version 2020-05-16
  */
