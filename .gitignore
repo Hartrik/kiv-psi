@@ -2,3 +2,12 @@
 /.idea
 /.temp
 /build
+
+#LaTEX
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
